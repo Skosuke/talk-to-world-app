@@ -5,10 +5,11 @@ import "../css/Chat.css";
 const RECONNECT_INTERVAL = 3000; // 自動再接続の間隔（ミリ秒）
 
 const Chat = () => {
+    // 入室状態を管理するフラグ。false の場合は入室前の画面（入室ボタン）を表示
+    const [joined, setJoined] = useState(false);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [connectionStatus, setConnectionStatus] = useState("connecting"); // "connecting", "connected", "reconnecting", "disconnected"
-    const [hasLeft, setHasLeft] = useState(false); // ユーザーが退出したかどうかのフラグ
     const ws = useRef(null);
     const chatWindowRef = useRef(null);
     const reconnectTimeout = useRef(null);
@@ -32,7 +33,7 @@ const Chat = () => {
             ]);
         };
 
-        ws.current.onerror = (error) => {
+        ws.current.onerror = () => {
             setMessages((prev) => [
                 ...prev,
                 { type: "system", text: "WebSocket error occurred." },
@@ -40,8 +41,8 @@ const Chat = () => {
         };
 
         ws.current.onclose = () => {
-            // ユーザーが退出していない場合は再接続を試みる
-            if (!hasLeft) {
+            // 入室状態の場合は再接続を試みる
+            if (joined) {
                 setConnectionStatus("disconnected");
                 setMessages((prev) => [
                     ...prev,
@@ -55,7 +56,7 @@ const Chat = () => {
                     connect();
                 }, RECONNECT_INTERVAL);
             } else {
-                // ユーザーが退出した場合は再接続を行わない
+                // 退出後（＝入室状態でなくなった場合）は再接続を行わず通知
                 setConnectionStatus("disconnected");
                 setMessages((prev) => [
                     ...prev,
@@ -63,10 +64,11 @@ const Chat = () => {
                 ]);
             }
         };
-    }, [hasLeft]);
+    }, [joined]);
 
-    // 初回接続の実行とクリーンアップ
+    // 入室状態になった場合にのみ WebSocket 接続を開始する
     useEffect(() => {
+        if (!joined) return;
         connect();
 
         return () => {
@@ -77,7 +79,7 @@ const Chat = () => {
                 clearTimeout(reconnectTimeout.current);
             }
         };
-    }, [connect]);
+    }, [joined, connect]);
 
     // 新しいメッセージが追加されたら自動スクロール
     useEffect(() => {
@@ -105,15 +107,27 @@ const Chat = () => {
         }
     };
 
-    // チャットルームから退出する処理
+    // 退出処理：入室状態を false にして WebSocket 接続を閉じる
     const leaveChat = () => {
-        setHasLeft(true); // 退出フラグを設定
+        setJoined(false);
         if (ws.current) {
-            ws.current.close(); // WebSocket 接続を閉じる
+            ws.current.close();
         }
-        // 必要に応じて、画面遷移の処理（例：ルート画面へのリダイレクトなど）を追加できます
     };
 
+    // 入室前は、入室用の画面を表示
+    if (!joined) {
+        return (
+            <div className="join-container">
+                <h1>ようこそチャットルームへ</h1>
+                <button className="join-button" onClick={() => setJoined(true)}>
+                    入室
+                </button>
+            </div>
+        );
+    }
+
+    // 入室後はチャット UI を表示
     return (
         <div className="chat-container">
             <div className="chat-header">
@@ -123,12 +137,9 @@ const Chat = () => {
                     {connectionStatus === "reconnecting" && " (再接続中...)"}{" "}
                     {connectionStatus === "disconnected" && " (切断済み)"}
                 </span>
-                {/* 退出ボタン。既に退出している場合は非表示にする */}
-                {!hasLeft && (
-                    <button className="leave-button" onClick={leaveChat}>
-                        Exit Chat
-                    </button>
-                )}
+                <button className="leave-button" onClick={leaveChat}>
+                    Exit Chat
+                </button>
             </div>
             <div className="chat-window" ref={chatWindowRef}>
                 {messages.map((msg, index) => (
@@ -137,19 +148,16 @@ const Chat = () => {
                     </div>
                 ))}
             </div>
-            {/* 退出後は入力エリアを非表示にする */}
-            {!hasLeft && (
-                <div className="chat-input">
-                    <input
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Type your message..."
-                    />
-                    <button onClick={sendMessage}>Send</button>
-                </div>
-            )}
+            <div className="chat-input">
+                <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Type your message..."
+                />
+                <button onClick={sendMessage}>Send</button>
+            </div>
         </div>
     );
 };
