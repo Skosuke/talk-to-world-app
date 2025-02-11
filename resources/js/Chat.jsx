@@ -99,7 +99,7 @@ const Chat = () => {
         }
     };
 
-    const handleKeyPress = (e) => {
+    const handleKeyDown = (e) => {
         if (e.key === "Enter") {
             sendMessage();
         }
@@ -144,7 +144,7 @@ const Chat = () => {
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        onKeyPress={handleKeyPress}
+                        onKeyDown={handleKeyDown}
                         placeholder="Type your message..."
                     />
                     <button onClick={sendMessage}>Send</button>
