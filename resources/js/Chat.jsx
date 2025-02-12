@@ -32,19 +32,19 @@ const Chat = () => {
                 // oncloseが同時に発動するため、以下の処理が期待通りに動作しない。
                 // 本来は、ここで待機時間を設ける処理を行う予定だった。
                 // そのた目、以下の処理はコメントアウトしておく。
-            //     setMessages((prev) => [
-            //         ...prev,
-            //         {
-            //             type: "system",
-            //             text: "相手が退出しました。しばらくお待ちください。",
-            //         },
-            //     ]);
-            // } else {
-            //     setMessages((prev) => [
-            //         ...prev,
-            //         { type: "received", text: event.data },
-            //     ]);
-            // }
+                // setMessages((prev) => [
+                //     ...prev,
+                //     {
+                //         type: "system",
+                //         text: "相手が退出しました。しばらくお待ちください。",
+                //     },
+                // ]);
+            } else {
+                setMessages((prev) => [
+                    ...prev,
+                    { type: "received", text: event.data },
+                ]);
+            }
         };
 
         ws.current.onerror = () => {
