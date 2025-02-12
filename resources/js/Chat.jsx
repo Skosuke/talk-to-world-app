@@ -26,11 +26,25 @@ const Chat = () => {
             ]);
         };
 
+        // 修正: onmessage ハンドラーで、相手退出時に待機時間を設ける
         ws.current.onmessage = (event) => {
-            setMessages((prev) => [
-                ...prev,
-                { type: "received", text: event.data },
-            ]);
+            if (event.data === "Your partner disconnected.") {
+                // oncloseが同時に発動するため、以下の処理が期待通りに動作しない。
+                // 本来は、ここで待機時間を設ける処理を行う予定だった。
+                // そのた目、以下の処理はコメントアウトしておく。
+            //     setMessages((prev) => [
+            //         ...prev,
+            //         {
+            //             type: "system",
+            //             text: "相手が退出しました。しばらくお待ちください。",
+            //         },
+            //     ]);
+            // } else {
+            //     setMessages((prev) => [
+            //         ...prev,
+            //         { type: "received", text: event.data },
+            //     ]);
+            // }
         };
 
         ws.current.onerror = () => {
@@ -41,28 +55,14 @@ const Chat = () => {
         };
 
         ws.current.onclose = () => {
-            // 入室状態の場合は再接続を試みる
-            if (joined) {
-                setConnectionStatus("disconnected");
-                setMessages((prev) => [
-                    ...prev,
-                    {
-                        type: "system",
-                        text: "Disconnected from chat server. Reconnecting...",
-                    },
-                ]);
-                reconnectTimeout.current = setTimeout(() => {
-                    setConnectionStatus("reconnecting");
-                    connect();
-                }, RECONNECT_INTERVAL);
-            } else {
-                // 退出後（＝入室状態でなくなった場合）は再接続を行わず通知
-                setConnectionStatus("disconnected");
-                setMessages((prev) => [
-                    ...prev,
-                    { type: "system", text: "You have left the chat room." },
-                ]);
-            }
+            // 切断されたら再接続せずに入室用画面に戻る
+            setConnectionStatus("disconnected");
+            console.log("WebSocket connection closed.");
+            setMessages((prev) => [
+                ...prev,
+                { type: "system", text: "Disconnected from chat server." },
+            ]);
+            setJoined(false);
         };
     }, [joined]);
 
