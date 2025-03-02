@@ -3,6 +3,8 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import "../../css/Chat.css";
 import ChatHeader from "../components/chat/Header";
 import ChatInput from "../components/chat/Input";
+import JoinScreen from "../components/chat/JoinScreen";
+import ChatUI from "../components/chat/ChatUI";
 
 const RECONNECT_INTERVAL = 3000; // ...定数などの定義...
 
@@ -119,38 +121,22 @@ const Chat = () => {
 
     // 入室前は、入室用の画面を表示
     if (!joined) {
+        return <JoinScreen setJoined={setJoined} />;
+    } else {
+        // 入室後はチャット UI を表示
         return (
-            <div className="join-container">
-                <h1>ようこそチャットルームへ</h1>
-                <button className="join-button" onClick={() => setJoined(true)}>
-                    入室
-                </button>
-            </div>
-        );
-    }
-
-    // 入室後はチャット UI を表示
-    return (
-        <div className="chat-container">
-            <ChatHeader
+            <ChatUI
                 connectionStatus={connectionStatus}
                 leaveChat={leaveChat}
-            />
-            <div className="chat-window" ref={chatWindowRef}>
-                {messages.map((msg, index) => (
-                    <div key={index} className={`chat-message ${msg.type}`}>
-                        {msg.type === "system" ? <em>{msg.text}</em> : msg.text}
-                    </div>
-                ))}
-            </div>
-            <ChatInput
+                chatWindowRef={chatWindowRef}
                 input={input}
                 setInput={setInput}
                 sendMessage={sendMessage}
                 handleKeyDown={handleKeyDown}
+                messages={messages}
             />
-        </div>
-    );
+        );
+    }
 };
 
 export default Chat;
