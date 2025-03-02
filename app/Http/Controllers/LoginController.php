@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Services\AuthService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class LoginController extends Controller
 {
     public function index()
     {
-        return view('login');
+        return Inertia::render('Login');
     }
 
     public function login(Request $request, AuthService $authService)

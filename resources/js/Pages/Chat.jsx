@@ -1,8 +1,6 @@
 // Inertia 用の Chat コンポーネント（旧 Chat.jsx のコードを配置）
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import "../../css/Chat.css";
-import ChatHeader from "../components/chat/Header";
-import ChatInput from "../components/chat/Input";
 import JoinScreen from "../components/chat/JoinScreen";
 import ChatUI from "../components/chat/ChatUI";
 
