@@ -15,10 +15,11 @@ class LoginController extends Controller
 
     public function login(Request $request, AuthService $authService)
     {
+        // dd($request->all());
         // ログイン処理
         $credentials = $request->only('email', 'password');
         if ($authService->attemptLogin($credentials)) {
-            return redirect()->route('home');
+            return redirect()->route('chat');
         }
         return back()->withErrors(['email' => 'ログインに失敗しました']);
     }

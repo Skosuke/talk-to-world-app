@@ -6,7 +6,7 @@ import ChatUI from "../components/chat/ChatUI";
 
 const RECONNECT_INTERVAL = 3000; // ...定数などの定義...
 
-const Chat = () => {
+const Chat = ({ session = {} }) => {
     // 入室状態を管理するフラグ。false の場合は入室前の画面（入室ボタン）を表示
     const [joined, setJoined] = useState(false);
     const [messages, setMessages] = useState([]);
@@ -119,7 +119,7 @@ const Chat = () => {
 
     // 入室前は、入室用の画面を表示
     if (!joined) {
-        return <JoinScreen setJoined={setJoined} />;
+        return <JoinScreen setJoined={setJoined} session={session} />;
     } else {
         // 入室後はチャット UI を表示
         return (
