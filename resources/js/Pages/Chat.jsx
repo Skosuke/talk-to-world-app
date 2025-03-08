@@ -3,10 +3,11 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import "../../css/Chat.css";
 import JoinScreen from "../components/chat/JoinScreen";
 import ChatUI from "../components/chat/ChatUI";
+import AppHeader from "../components/AppHeader";
 
 const RECONNECT_INTERVAL = 3000; // ...定数などの定義...
 
-const Chat = ({ session = {} }) => {
+const Chat = () => {
     // 入室状態を管理するフラグ。false の場合は入室前の画面（入室ボタン）を表示
     const [joined, setJoined] = useState(false);
     const [messages, setMessages] = useState([]);
@@ -119,7 +120,12 @@ const Chat = ({ session = {} }) => {
 
     // 入室前は、入室用の画面を表示
     if (!joined) {
-        return <JoinScreen setJoined={setJoined} session={session} />;
+        return (
+            <>
+                <AppHeader />
+                <JoinScreen setJoined={setJoined} />
+            </>
+        );
     } else {
         // 入室後はチャット UI を表示
         return (
