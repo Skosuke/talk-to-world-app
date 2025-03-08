@@ -104,11 +104,13 @@ const JoinScreen = ({ setJoined }) => {
             }
         };
 
-        // リサイズイベントのリスナー
-        window.addEventListener("resize", () => {
+        // リスナー追加と削除で異なる関数参照を使用
+        const handleResize = () => {
             setCanvasSize();
             initParticles();
-        });
+        };
+
+        window.addEventListener("resize", handleResize);
 
         // 初期化と描画開始
         setCanvasSize();
@@ -117,7 +119,7 @@ const JoinScreen = ({ setJoined }) => {
 
         // クリーンアップ
         return () => {
-            window.removeEventListener("resize", setCanvasSize);
+            window.removeEventListener("resize", handleResize);
         };
     }, []);
 
