@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import useCanvasAnimation from "../../hooks/useCanvasAnimation";
-import "../../../css/JoinScreen.css";
 
 const JoinScreen = ({ setJoined }) => {
     const [isHovering, setIsHovering] = useState(false);
@@ -9,7 +8,10 @@ const JoinScreen = ({ setJoined }) => {
     useCanvasAnimation(canvasRef);
 
     return (
-        <div className="container-fluid d-flex flex-column align-items-center justify-content-center vh-100 p-0 m-0 join-screen">
+        <div
+            className="container-fluid d-flex flex-column align-items-center justify-content-center p-0 join-screen"
+            style={{ minHeight: "calc(100vh - 60px)" }}
+        >
             {/* PS5風のアニメーション背景 */}
             <canvas ref={canvasRef} className="join-screen__canvas"></canvas>
 

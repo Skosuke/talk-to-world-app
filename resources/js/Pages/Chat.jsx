@@ -1,13 +1,12 @@
 // Inertia 用の Chat コンポーネント（旧 Chat.jsx のコードを配置）
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import "../../css/Chat.css";
 import JoinScreen from "../components/chat/JoinScreen";
 import ChatUI from "../components/chat/ChatUI";
 import AppHeader from "../components/AppHeader";
 
 const RECONNECT_INTERVAL = 3000; // ...定数などの定義...
 
-const Chat = () => {
+const Chat = ({ session }) => {
     // 入室状態を管理するフラグ。false の場合は入室前の画面（入室ボタン）を表示
     const [joined, setJoined] = useState(false);
     const [messages, setMessages] = useState([]);
@@ -122,7 +121,7 @@ const Chat = () => {
     if (!joined) {
         return (
             <>
-                <AppHeader />
+                <AppHeader session={session} />
                 <JoinScreen setJoined={setJoined} />
             </>
         );
@@ -138,6 +137,7 @@ const Chat = () => {
                 sendMessage={sendMessage}
                 handleKeyDown={handleKeyDown}
                 messages={messages}
+                session={session}
             />
         );
     }
