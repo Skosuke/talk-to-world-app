@@ -3,12 +3,18 @@ import React from "react";
 const ChatInput = ({ input, setInput, sendMessage, handleKeyDown }) => (
     <div className="chat-input">
         <div className="chat-input-wrapper">
-            <input
-                type="text"
+            <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="メッセージを入力..."
+                rows="1"
+                style={{
+                    resize: "none",
+                    overflow: "auto",
+                    minHeight: "44px",
+                    maxHeight: "120px"
+                }}
             />
             <button onClick={sendMessage}>
                 <svg

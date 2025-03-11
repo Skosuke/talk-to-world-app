@@ -31,8 +31,7 @@ const AppHeader = ({ session = {} }) => {
                                 onMouseLeave={() => setIsHovering(false)}
                             >
                                 <span>
-                                    ログイン中:{" "}
-                                    <strong>{session.user.name}</strong>
+                                    user: <strong>{session.user.name}</strong>
                                 </span>
                             </div>
                             <Link
@@ -41,7 +40,7 @@ const AppHeader = ({ session = {} }) => {
                                 as="button"
                                 className="app-header__logout-btn ms-3"
                             >
-                                ログアウト
+                                logout
                             </Link>
                         </div>
                     ) : (

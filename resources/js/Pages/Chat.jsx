@@ -104,7 +104,18 @@ const Chat = ({ session }) => {
     };
 
     const handleKeyDown = (e) => {
+        // IME入力中はEnterキーを無視
+        if (e.isComposing || e.keyCode === 229) {
+            return;
+        }
+        
         if (e.key === "Enter") {
+            // Shiftキーが押されている場合は改行を許可
+            if (e.shiftKey) {
+                return;
+            }
+            // それ以外の場合はメッセージを送信
+            e.preventDefault();
             sendMessage();
         }
     };
