@@ -191,3 +191,136 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     color: white;
 }
+
+/* モバイルメニュー関連のスタイル */
+.mobile-menu-toggle {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.mobile-menu-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.mobile-status-indicator {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+}
+
+.mobile-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 5px;
+    width: 200px;
+    z-index: 1000;
+    display: none;
+    transform: translateY(-10px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.mobile-menu.show {
+    display: block;
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.mobile-menu::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    width: 16px;
+    height: 16px;
+    background: white;
+    transform: rotate(45deg);
+    z-index: -1;
+}
+
+.mobile-user-badge {
+    background-color: #f5f8ff;
+    border-radius: 4px;
+    color: #333;
+}
+
+.mobile-menu-btn {
+    width: 100%;
+    background-color: #f5f8ff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #4a53c8;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: block;
+}
+
+.mobile-menu-btn:hover {
+    background-color: #e8efff;
+    color: #3a43b8;
+}
+
+/* モバイル対応の強化 */
+@media (max-width: 768px) {
+    .app-header__logo {
+        font-size: 1.2rem;
+    }
+    
+    .connection-status {
+        padding: 2px 8px;
+        font-size: 0.75rem;
+    }
+    
+    .chat-status-text {
+        display: none; /* モバイルでは状態テキストを非表示にする */
+    }
+    
+    .app-header__user-badge {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+    
+    .app-header__logout-btn,
+    .chat-exit-btn {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+    
+    .app-header__nav-link {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+}
+
+/* さらに小さい画面用 */
+@media (max-width: 576px) {
+    .app-header .container {
+        padding: 0 10px;
+    }
+    
+    .app-header__logo {
+        font-size: 1rem;
+    }
+    
+    .app-header__user-badge span strong {
+        max-width: 80px;
+        /* overflow: hidden; */
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+    }
+}

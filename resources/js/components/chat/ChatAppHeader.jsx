@@ -4,6 +4,7 @@ import "../../../css/AppHeader.css";
 
 const ChatAppHeader = ({ session = {}, connectionStatus, leaveChat }) => {
     const [isHovering, setIsHovering] = useState(false);
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     return (
         <header className="app-header shadow-lg">
@@ -19,7 +20,7 @@ const ChatAppHeader = ({ session = {}, connectionStatus, leaveChat }) => {
                             Talk To World
                         </Link>
                     </h1>
-                    <div className="connection-status ms-3">
+                    <div className="connection-status ms-3 d-none d-sm-inline-flex">
                         <div
                             className={`status-indicator ${
                                 connectionStatus === "connecting"
@@ -37,9 +38,45 @@ const ChatAppHeader = ({ session = {}, connectionStatus, leaveChat }) => {
                             {connectionStatus === "connected" && "接続中"}
                         </span>
                     </div>
+                    {/* モバイル表示用のステータスインジケーター（テキストなし） */}
+                    <div className="mobile-status-indicator d-inline-block d-sm-none ms-2">
+                        <div
+                            className={`status-indicator ${
+                                connectionStatus === "connecting"
+                                    ? "connecting"
+                                    : connectionStatus === "disconnected"
+                                    ? "disconnected"
+                                    : ""
+                            }`}
+                        />
+                    </div>
                 </div>
 
-                <div className="d-flex align-items-center">
+                {/* ハンバーガーメニュー（モバイル用） */}
+                <button 
+                    className="mobile-menu-toggle d-sm-none" 
+                    onClick={() => setShowMobileMenu(!showMobileMenu)}
+                    aria-label="メニューを開く"
+                >
+                    <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="24" 
+                        height="24" 
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+
+                {/* デスクトップ用のメニュー */}
+                <div className={`d-none d-sm-flex align-items-center`}>
                     {session.user ? (
                         <>
                             <div
@@ -56,7 +93,6 @@ const ChatAppHeader = ({ session = {}, connectionStatus, leaveChat }) => {
                                 </span>
                             </div>
                             <div className="d-flex gap-2 ms-3">
-
                                 <Link
                                     href="/logout"
                                     method="post"
@@ -65,10 +101,9 @@ const ChatAppHeader = ({ session = {}, connectionStatus, leaveChat }) => {
                                 >
                                     logout
                                 </Link>
-
                             </div>
                             <div className="d-flex gap-2 ms-3">
-                            <button
+                                <button
                                     className="chat-exit-btn"
                                     onClick={leaveChat}
                                 >
@@ -173,6 +208,56 @@ const ChatAppHeader = ({ session = {}, connectionStatus, leaveChat }) => {
                                     </svg>
                                     Exit Chat
                                 </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+
+                {/* モバイル用のメニュー（トグル可能） */}
+                <div className={`mobile-menu ${showMobileMenu ? 'show' : ''}`}>
+                    {session.user ? (
+                        <>
+                            <div className="mb-2 p-2 text-center mobile-user-badge">
+                                <strong>{session.user.name}</strong>
+                            </div>
+                            <div className="d-flex flex-column">
+                                <button
+                                    className="mobile-menu-btn mb-2"
+                                    onClick={leaveChat}
+                                >
+                                    Exit Chat
+                                </button>
+                                <Link
+                                    href="/logout"
+                                    method="post"
+                                    as="button"
+                                    className="mobile-menu-btn"
+                                >
+                                    Logout
+                                </Link>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="d-flex flex-column">
+                                <button
+                                    className="mobile-menu-btn mb-2"
+                                    onClick={leaveChat}
+                                >
+                                    Exit Chat
+                                </button>
+                                <Link
+                                    href={route("login")}
+                                    className="mobile-menu-btn mb-2"
+                                >
+                                    Login
+                                </Link>
+                                <Link
+                                    href={route("register")}
+                                    className="mobile-menu-btn"
+                                >
+                                    Sign Up
+                                </Link>
                             </div>
                         </>
                     )}
