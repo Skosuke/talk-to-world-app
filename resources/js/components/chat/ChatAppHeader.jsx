@@ -52,7 +52,6 @@ const ChatAppHeader = ({ session = {}, connectionStatus, leaveChat }) => {
                                 onMouseLeave={() => setIsHovering(false)}
                             >
                                 <span>
-                                    ログイン中:{" "}
                                     <strong>{session.user.name}</strong>
                                 </span>
                             </div>
@@ -102,7 +101,7 @@ const ChatAppHeader = ({ session = {}, connectionStatus, leaveChat }) => {
                                     as="button"
                                     className="app-header__logout-btn"
                                 >
-                                    ログアウト
+                                    logout
                                 </Link>
                             </div>
                         </>

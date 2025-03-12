@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useRef } from "react";
-import { useForm } from "@inertiajs/react";
+import { useForm, Link } from "@inertiajs/react";
 import "../../css/Login.css";
 import useCanvasAnimation from "../hooks/useCanvasAnimation";
 
@@ -79,9 +79,14 @@ const Login = () => {
                         </button>
                     </form>
                     <div className="text-center mt-3">
-                        <a href="/chat" className="login-screen__skip-link">
+                        <Link 
+                            href={route("chat")} 
+                            className="login-screen__skip-link"
+                            preserveState={false}
+                            preserveScroll={false}
+                        >
                             ログインしないで利用
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

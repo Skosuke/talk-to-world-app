@@ -1,6 +1,7 @@
 import React from "react";
 import ChatInput from "./Input";
 import ChatAppHeader from "./ChatAppHeader";
+import "../../../css/Chat.css";
 
 const formatTimestamp = () => {
     const now = new Date();

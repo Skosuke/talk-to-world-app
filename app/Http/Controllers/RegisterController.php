@@ -38,6 +38,8 @@ class RegisterController extends Controller
         ]);
 
         // 登録完了後、ログイン画面またはホームなどへリダイレクト
-        return redirect()->route('login')->with('success', '登録に成功しました。');
+        return redirect()->route('login')->with([
+            'success' => '登録に成功しました。'
+        ]);
     }
 }

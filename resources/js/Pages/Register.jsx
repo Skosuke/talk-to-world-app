@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useRef } from "react";
-import { useForm } from "@inertiajs/react";
-import "../../css/Login.css";
+import { useForm, Link } from "@inertiajs/react";
+import "../../css/Register.css";
 import useCanvasAnimation from "../hooks/useCanvasAnimation";
 
 const Register = () => {
@@ -22,14 +22,14 @@ const Register = () => {
     };
 
     return (
-        <div className="login-screen d-flex flex-column justify-content-center align-items-center vh-100">
+        <div className="register-screen d-flex flex-column justify-content-center align-items-center vh-100">
             {/* Animated background canvas */}
-            <canvas ref={canvasRef} className="login-screen__canvas"></canvas>
+            <canvas ref={canvasRef} className="register-screen__canvas"></canvas>
 
-            <div className="login-screen__content">
-                <h1 className="login-screen__title mb-4">Talk to World</h1>
+            <div className="register-screen__content">
+                <h1 className="register-screen__title mb-4">Talk to World</h1>
 
-                <div className="login-screen__card p-4">
+                <div className="register-screen__card p-4">
                     <h2 className="mb-4 text-center">ユーザー登録</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
@@ -39,7 +39,7 @@ const Register = () => {
                             <input
                                 id="name"
                                 type="text"
-                                className="form-control login-screen__input"
+                                className="form-control register-screen__input"
                                 value={data.name}
                                 onChange={(e) =>
                                     setData("name", e.target.value)
@@ -58,7 +58,7 @@ const Register = () => {
                             <input
                                 id="email"
                                 type="email"
-                                className="form-control login-screen__input"
+                                className="form-control register-screen__input"
                                 value={data.email}
                                 onChange={(e) =>
                                     setData("email", e.target.value)
@@ -77,7 +77,7 @@ const Register = () => {
                             <input
                                 id="password"
                                 type="password"
-                                className="form-control login-screen__input"
+                                className="form-control register-screen__input"
                                 value={data.password}
                                 onChange={(e) =>
                                     setData("password", e.target.value)
@@ -99,7 +99,7 @@ const Register = () => {
                             <input
                                 id="password_confirmation"
                                 type="password"
-                                className="form-control login-screen__input"
+                                className="form-control register-screen__input"
                                 value={data.password_confirmation}
                                 onChange={(e) =>
                                     setData(
@@ -116,22 +116,29 @@ const Register = () => {
                         </div>
                         <button
                             type="submit"
-                            className="login-screen__button w-100"
+                            className="register-screen__button w-100"
                             disabled={processing}
                         >
                             {processing ? "登録中..." : "登録する"}
                         </button>
                     </form>
                     <div className="text-center mt-3">
-                        <a
-                            href="/login"
-                            className="login-screen__skip-link me-3"
+                        <Link
+                            href={route("login")}
+                            className="register-screen__link me-3"
+                            preserveState={false}
+                            preserveScroll={false}
                         >
                             ログイン画面へ
-                        </a>
-                        <a href="/chat" className="login-screen__skip-link">
+                        </Link>
+                        <Link 
+                            href={route("chat")} 
+                            className="register-screen__link"
+                            preserveState={false}
+                            preserveScroll={false}
+                        >
                             ログインしないで利用
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

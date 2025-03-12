@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import useCanvasAnimation from "../../hooks/useCanvasAnimation";
+import "../../../css/JoinScreen.css";
 
 const JoinScreen = ({ setJoined }) => {
     const [isHovering, setIsHovering] = useState(false);
@@ -26,11 +27,18 @@ const JoinScreen = ({ setJoined }) => {
                 </p>
 
                 <div
-                    className={`card p-4 rounded-lg shadow-lg mb-4 border-0 join-screen__card ${
+                    className={`card p-4 rounded-lg shadow-lg mb-4 border-0 join-screen__card join-screen__card-inner ${
                         isHovering
                             ? "join-screen__card--hover"
                             : "join-screen__card--default"
                     }`}
+                    style={{
+                        backgroundColor: "rgba(255, 255, 255, 0.98)",
+                        borderRadius: "12px",
+                        boxShadow: isHovering 
+                            ? "0 8px 25px rgba(79, 172, 254, 0.4)"
+                            : "0 4px 15px rgba(79, 172, 254, 0.3)"
+                    }}
                 >
                     <h2 className="card-title text-center mb-4 fw-bold text-dark">
                         ようこそチャットルームへ
@@ -43,6 +51,10 @@ const JoinScreen = ({ setJoined }) => {
                         onClick={() => setJoined(true)}
                         onMouseEnter={() => setIsHovering(true)}
                         onMouseLeave={() => setIsHovering(false)}
+                        style={{
+                            backgroundColor: "#4facfe",
+                            color: "#fff"
+                        }}
                     >
                         チャットを始める
                     </button>
