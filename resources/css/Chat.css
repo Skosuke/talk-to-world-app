@@ -77,6 +77,11 @@ body {
     margin-top: 4px;
 }
 
+/* 送信メッセージのタイムスタンプ */
+.chat-message.sent .timestamp {
+    color: var(--text-light);
+}
+
 /* 各メッセージの基本スタイル */
 .chat-message {
     padding: 12px 18px;
