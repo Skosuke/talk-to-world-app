@@ -103,6 +103,7 @@ body {
 
 /* 送信メッセージ */
 .chat-message.sent {
+    margin-right: 3px;
     background: linear-gradient(
         135deg,
         var(--primary-color),
@@ -115,6 +116,7 @@ body {
 
 /* 受信メッセージ */
 .chat-message.received {
+    margin-left: 3px;
     background-color: white;
     color: var(--text-dark);
     align-self: flex-start;
@@ -244,13 +246,13 @@ body {
 /* スマートフォンサイズ向け追加スタイル */
 @media (max-width: 576px) {
     .chat-content {
-        margin: 5px;
+        margin: 0px;
         height: calc(100vh - 70px);
         border-radius: 6px;
     }
 
     .chat-window {
-        padding: 12px;
+        padding: 0px;
         gap: 12px;
     }
 
@@ -284,12 +286,12 @@ body {
 /* 超小型デバイス対応 */
 @media (max-width: 360px) {
     .chat-content {
-        margin: 3px;
+        margin: 0;
         height: calc(100vh - 60px);
     }
 
     .chat-window {
-        padding: 10px;
+        padding: 0;
         gap: 10px;
     }
 
