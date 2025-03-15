@@ -4,6 +4,7 @@ import JoinScreen from "../components/chat/JoinScreen";
 import ChatUI from "../components/chat/ChatUI";
 import AppHeader from "../components/AppHeader";
 import ConfirmModal from "../components/chat/ConfirmModal";
+import PartnerDisconnectModal from "../components/chat/PartnerDisconnectModal";
 
 // WebSocketの再接続間隔を設定（ミリ秒）
 const RECONNECT_INTERVAL = 3000;
@@ -36,6 +37,9 @@ const Chat = ({ session }) => {
     // 退出確認モーダルの表示状態
     const [showExitConfirmation, setShowExitConfirmation] = useState(false);
     
+    // 相手退出通知モーダルの表示状態
+    const [showPartnerDisconnectModal, setShowPartnerDisconnectModal] = useState(false);
+    
     // ===== 参照（Refs）の定義 =====
     
     // WebSocketの参照を保持（コンポーネントの再レンダリングの影響を受けないように）
@@ -49,6 +53,9 @@ const Chat = ({ session }) => {
     
     // 退出処理中かどうかを判断するフラグ
     const exitAttemptInProgress = useRef(false);
+    
+    // 相手の接続が切れたかどうかのフラグ
+    const partnerDisconnected = useRef(false);
 
     // ===== 副作用（Effects）とイベントハンドラ =====
 
@@ -90,7 +97,7 @@ const Chat = ({ session }) => {
             window.removeEventListener('beforeunload', handleBeforeUnload);
             window.removeEventListener('popstate', handlePopState);
         };
-    }, [joined]); // joinedの値が変わった時だけ再実行
+    }, [joined]); 
 
     /**
      * WebSocket接続を確立する関数
@@ -112,15 +119,16 @@ const Chat = ({ session }) => {
         // メッセージ受信時の処理
         ws.current.onmessage = (event) => {
             if (event.data === "Your partner disconnected.") {
-                // 相手が退出したときの処理
-                // 注: oncloseが同時に発動するため、以下の処理はコメントアウト中
-                // setMessages((prev) => [
-                //     ...prev,
-                //     {
-                //         type: "system",
-                //         text: "相手が退出しました。しばらくお待ちください。",
-                //     },
-                // ]);
+                // 相手が退出したことを記録
+                partnerDisconnected.current = true;
+                // システムメッセージとして表示
+                setMessages((prev) => [
+                    ...prev,
+                    {
+                        type: "system",
+                        text: "相手が退出しました。",
+                    },
+                ]);
             } else {
                 // 通常のメッセージ受信処理
                 setMessages((prev) => [
@@ -140,14 +148,24 @@ const Chat = ({ session }) => {
 
         // 接続切断時の処理
         ws.current.onclose = () => {
-            // 切断されたら再接続せずに入室用画面に戻る
+            // 切断されたら状態を更新
             setConnectionStatus("disconnected");
             console.log("WebSocket connection closed.");
+            
+            // システムメッセージを追加
             setMessages((prev) => [
                 ...prev,
                 { type: "system", text: "Disconnected from chat server." },
             ]);
-            setJoined(false);
+            
+            // 自分から退出した場合（Exit Chatボタン）はモーダルを表示せずそのまま終了
+            if (exitAttemptInProgress.current) {
+                setJoined(false);
+                return;
+            }
+            
+            // 相手が退出したか、または予期せぬ切断の場合は確認モーダルを表示
+            setShowPartnerDisconnectModal(true);
         };
     }, [joined]);
 
@@ -183,7 +201,7 @@ const Chat = ({ session }) => {
             // チャットウィンドウを最下部にスクロール
             chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
         }
-    }, [messages]); // messagesの値が変わった時だけ再実行
+    }, [messages]);
 
     /**
      * メッセージを送信する関数
@@ -214,7 +232,7 @@ const Chat = ({ session }) => {
      */
     const handleKeyDown = (e) => {
         // IME入力中はEnterキーを無視（日本語入力などでの誤送信を防止）
-        if (e.isComposing || e.keyCode === 229) {
+        if (e.isComposing || e.nativeEvent.isComposing) {
             return;
         }
         
@@ -251,13 +269,24 @@ const Chat = ({ session }) => {
         // モーダル表示中に直接呼び出された場合はモーダルを閉じる
         setShowExitConfirmation(false);
         
-        // 入室状態をfalseに変更
-        setJoined(false);
+        // 退出処理中フラグをセット
+        exitAttemptInProgress.current = true;
         
         // WebSocket接続を閉じる
         if (ws.current) {
             ws.current.close();
         }
+        
+        // 入室状態をfalseに変更
+        setJoined(false);
+    };
+    
+    /**
+     * 相手退出モーダルのOKボタンクリック時の処理
+     */
+    const handlePartnerDisconnectConfirm = () => {
+        setShowPartnerDisconnectModal(false);
+        setJoined(false);
     };
 
     // ===== レンダリング =====
@@ -291,6 +320,14 @@ const Chat = ({ session }) => {
                     onConfirm={leaveChat}
                     onCancel={cancelExit}
                     message="チャットを終了しますか？"
+                />
+                {/* 相手退出通知モーダル */}
+                <PartnerDisconnectModal
+                    isVisible={showPartnerDisconnectModal}
+                    onConfirm={handlePartnerDisconnectConfirm}
+                    message={partnerDisconnected.current 
+                        ? "チャット相手が退出しました。" 
+                        : "接続が切断されました。"}
                 />
             </>
         );
