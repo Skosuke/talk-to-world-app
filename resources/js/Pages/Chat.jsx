@@ -160,6 +160,8 @@ const Chat = ({ session }) => {
             
             // 自分から退出した場合（Exit Chatボタン）はモーダルを表示せずそのまま終了
             if (exitAttemptInProgress.current) {
+                // メッセージ履歴をリセット
+                setMessages([]);
                 setJoined(false);
                 return;
             }
@@ -271,7 +273,8 @@ const Chat = ({ session }) => {
         
         // 退出処理中フラグをセット
         exitAttemptInProgress.current = true;
-        
+        // メッセージ履歴をリセット
+        setMessages([]);
         // WebSocket接続を閉じる
         if (ws.current) {
             ws.current.close();
@@ -286,6 +289,8 @@ const Chat = ({ session }) => {
      */
     const handlePartnerDisconnectConfirm = () => {
         setShowPartnerDisconnectModal(false);
+        // メッセージ履歴をリセット
+        setMessages([]);
         setJoined(false);
     };
 
