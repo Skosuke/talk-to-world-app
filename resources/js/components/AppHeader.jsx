@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
 import "../../css/AppHeader.css";
+import { useAppContext } from "../contexts/AppContext";
 
 const AppHeader = ({ session = {} }) => {
     const [isHovering, setIsHovering] = useState(false);
+    const { APP_NAME } = useAppContext();
 
     return (
         <header className="app-header shadow-lg">
@@ -15,7 +17,7 @@ const AppHeader = ({ session = {} }) => {
                         onMouseEnter={() => setIsHovering(true)}
                         onMouseLeave={() => setIsHovering(false)}
                     >
-                        Talk To World
+                        {APP_NAME}
                     </Link>
                 </h1>
                 <nav>

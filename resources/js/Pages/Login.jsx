@@ -3,13 +3,14 @@ import React, { useRef } from "react";
 import { useForm, Link } from "@inertiajs/react";
 import "../../css/Login.css";
 import useCanvasAnimation from "../hooks/useCanvasAnimation";
+import { useAppContext } from "../contexts/AppContext";
 
 const Login = () => {
     const { data, setData, post, processing, errors } = useForm({
         email: "",
         password: "",
     });
-
+    const { APP_NAME } = useAppContext();
     // Canvas animation reference
     const canvasRef = useRef(null);
     useCanvasAnimation(canvasRef);
@@ -25,7 +26,7 @@ const Login = () => {
             <canvas ref={canvasRef} className="login-screen__canvas"></canvas>
 
             <div className="login-screen__content">
-                <h1 className="login-screen__title mb-4">Talk to World</h1>
+                <h1 className="login-screen__title mb-4">{APP_NAME}</h1>
 
                 <div className="login-screen__card p-4">
                     <h2 className="mb-4 text-center">ログイン</h2>

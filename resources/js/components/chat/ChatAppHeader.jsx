@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
 import "../../../css/AppHeader.css";
+import { useAppContext } from "../../contexts/AppContext";
 
 const ChatAppHeader = ({ session = {}, connectionStatus, leaveChat }) => {
+    const { APP_NAME } = useAppContext();
     const [isHovering, setIsHovering] = useState(false);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
 
@@ -17,7 +19,7 @@ const ChatAppHeader = ({ session = {}, connectionStatus, leaveChat }) => {
                             onMouseEnter={() => setIsHovering(true)}
                             onMouseLeave={() => setIsHovering(false)}
                         >
-                            Talk To World
+                            {APP_NAME}
                         </Link>
                     </h1>
                     <div className="connection-status ms-3 d-none d-sm-inline-flex">

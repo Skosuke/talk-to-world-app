@@ -126,6 +126,7 @@ body {
 
 /* システムメッセージ */
 .chat-message.system {
+    margin-top: 3px;
     background-color: rgba(0, 0, 0, 0.05);
     color: var(--text-muted);
     align-self: center;
