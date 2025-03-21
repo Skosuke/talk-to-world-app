@@ -1,19 +1,15 @@
 <?php
 
 namespace Tests\Feature;
-
-// use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Inertia\Testing\AssertableInertia as Assert;
 
 class ExampleTest extends TestCase
 {
-    /**
-     * A basic test example.
-     */
     public function test_the_application_returns_a_successful_response(): void
     {
-        $response = $this->get('/');
-
-        $response->assertStatus(200);
+        $response = $this->followingRedirects()->get('/');
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page->component('Chat'));
     }
 }
