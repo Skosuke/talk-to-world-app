@@ -24,7 +24,7 @@ const Chat = ({ session }) => {
     const [joined, setJoined] = useState(false);
     
     // チャットメッセージの履歴を保持する配列
-    // 各メッセージは { type: "system"|"sent"|"received", text: "メッセージ内容" } の形式
+    // 各メッセージは { type: "system"|"sent"|"received", text: "メッセージ内容", sender: "送信者名" } の形式
     const [messages, setMessages] = useState([]);
     
     // 入力欄の内容を管理
@@ -57,13 +57,53 @@ const Chat = ({ session }) => {
     // 相手の接続が切れたかどうかのフラグ
     const partnerDisconnected = useRef(false);
 
+    // 現在のセッションを保持するRef（ログイン状態変化検出用）
+    const sessionRef = useRef(session);
+
     // ===== 副作用（Effects）とイベントハンドラ =====
+    
+    /**
+     * sessionの変更を検知してユーザー名を更新する
+     */
+    useEffect(() => {
+        // チャット参加中にログイン状態が変わった場合のみ処理
+        if (joined && session !== sessionRef.current) {
+            const oldUsername = sessionRef.current?.user?.name || "partner";
+            const newUsername = session?.user?.name || "partner";
+            
+            // システムメッセージで通知
+            setMessages(prev => [
+                ...prev,
+                { 
+                    type: "system", 
+                    text: session?.user ? "ログインしました" : "ログアウトしました", 
+                    sender: "System" 
+                }
+            ]);
+            
+            // WebSocketが接続されていれば、ユーザー名変更を通知
+            if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+                // ユーザー名変更通知メッセージを作成
+                const updateUsernameMsg = {
+                    type: "username_change",
+                    oldUsername: oldUsername,
+                    newUsername: newUsername,
+                };
+                
+                // WebSocketサーバーにユーザー名変更を通知
+                ws.current.send(JSON.stringify(updateUsernameMsg));
+            }
+            
+            // 現在のセッション情報を更新
+            sessionRef.current = session;
+        } else {
+            // 初期化時などは単にセッション情報を更新
+            sessionRef.current = session;
+        }
+    }, [session, joined]);
 
     /**
      * ブラウザの戻るボタンを検知して確認モーダルを表示するための副作用
-     * 
-     * チャット中のみ有効になり、ブラウザの戻るボタンや画面を閉じる操作で
-     * ユーザーに確認を求める
      */
     useEffect(() => {
         // チャットに参加していない場合は何もしない
@@ -104,37 +144,82 @@ const Chat = ({ session }) => {
      * useCallbackでメモ化して不要な再作成を防ぐ
      */
     const connect = useCallback(() => {
-        // WebSocketサーバーに接続
-        ws.current = new WebSocket("ws://localhost:8080/ws");
-
+        // ユーザー名を取得（常に最新のセッション情報を参照）
+        const username = sessionRef.current?.user?.name || "partner";
+        
+        // WebSocketサーバーに接続 (ユーザー名をクエリパラメータとして送信)
+        ws.current = new WebSocket(`ws://localhost:8080/ws?username=${encodeURIComponent(username)}`);
+        
         // 接続成功時の処理
         ws.current.onopen = () => {
             setConnectionStatus("connected");
             setMessages((prev) => [
                 ...prev,
-                { type: "system", text: "Connected to chat server." },
+                { type: "system", text: "Connected to chat server.", sender: "System" },
             ]);
         };
 
         // メッセージ受信時の処理
         ws.current.onmessage = (event) => {
-            if (event.data === "Your partner disconnected.") {
-                // 相手が退出したことを記録
-                partnerDisconnected.current = true;
-                // システムメッセージとして表示
-                setMessages((prev) => [
-                    ...prev,
-                    {
-                        type: "system",
-                        text: "相手が退出しました。",
-                    },
-                ]);
-            } else {
-                // 通常のメッセージ受信処理
-                setMessages((prev) => [
-                    ...prev,
-                    { type: "received", text: event.data },
-                ]);
+            try {
+                // JSONメッセージとしてパース
+                const message = JSON.parse(event.data);
+                
+                if (message.type === "system") {
+                    if (message.text === "Your partner disconnected.") {
+                        // 相手が退出したことを記録
+                        partnerDisconnected.current = true;
+                        // システムメッセージとして表示
+                        setMessages((prev) => [
+                            ...prev,
+                            {
+                                type: "system",
+                                text: "相手が退出しました。",
+                                sender: "System"
+                            },
+                        ]);
+                    } else {
+                        // その他のシステムメッセージを表示
+                        setMessages((prev) => [
+                            ...prev,
+                            {
+                                type: "system",
+                                text: message.text,
+                                sender: "System"
+                            },
+                        ]);
+                    }
+                } else if (message.type === "message") {
+                    // 相手からのメッセージを受信
+                    setMessages((prev) => [
+                        ...prev,
+                        { 
+                            type: "received", 
+                            text: message.text,
+                            sender: message.sender 
+                        },
+                    ]);
+                }
+            } catch (error) {
+                // JSON解析に失敗した場合は従来の方式で処理（後方互換性）
+                console.error("メッセージの解析に失敗しました:", error);
+                
+                if (event.data === "Your partner disconnected.") {
+                    partnerDisconnected.current = true;
+                    setMessages((prev) => [
+                        ...prev,
+                        {
+                            type: "system",
+                            text: "相手が退出しました。",
+                            sender: "System"
+                        },
+                    ]);
+                } else {
+                    setMessages((prev) => [
+                        ...prev,
+                        { type: "received", text: event.data, sender: "Partner" },
+                    ]);
+                }
             }
         };
 
@@ -142,7 +227,7 @@ const Chat = ({ session }) => {
         ws.current.onerror = () => {
             setMessages((prev) => [
                 ...prev,
-                { type: "system", text: "WebSocket error occurred." },
+                { type: "system", text: "WebSocket error occurred.", sender: "System" },
             ]);
         };
 
@@ -155,7 +240,7 @@ const Chat = ({ session }) => {
             // システムメッセージを追加
             setMessages((prev) => [
                 ...prev,
-                { type: "system", text: "Disconnected from chat server." },
+                { type: "system", text: "Disconnected from chat server.", sender: "System" },
             ]);
             
             // 自分から退出した場合（Exit Chatボタン）はモーダルを表示せずそのまま終了
@@ -215,11 +300,28 @@ const Chat = ({ session }) => {
             ws.current.readyState === WebSocket.OPEN &&
             input.trim() !== ""
         ) {
-            // WebSocketサーバーにメッセージを送信
-            ws.current.send(input);
+            // 常に最新のセッション情報を使用
+            const currentSession = sessionRef.current;
+            
+            // JSON形式でメッセージを作成
+            const messageObj = {
+                type: "message",
+                text: input,
+                sender: currentSession?.user?.name || "You"
+            };
+            
+            // WebSocketサーバーにJSONメッセージを送信
+            ws.current.send(JSON.stringify(messageObj));
             
             // 自分のメッセージをUIに追加
-            setMessages((prev) => [...prev, { type: "sent", text: input }]);
+            setMessages((prev) => [
+                ...prev, 
+                { 
+                    type: "sent", 
+                    text: input,
+                    sender: messageObj.sender
+                }
+            ]);
             
             // 入力欄をクリア
             setInput("");
@@ -228,9 +330,6 @@ const Chat = ({ session }) => {
 
     /**
      * キーボードイベント処理関数
-     * Enterキーでメッセージを送信（Shift+Enterは改行）
-     * 
-     * @param {KeyboardEvent} e - キーボードイベント
      */
     const handleKeyDown = (e) => {
         // IME入力中はEnterキーを無視（日本語入力などでの誤送信を防止）
@@ -265,7 +364,6 @@ const Chat = ({ session }) => {
 
     /**
      * チャットから退出する関数
-     * WebSocket接続を切断して入室前の状態に戻す
      */
     const leaveChat = () => {
         // モーダル表示中に直接呼び出された場合はモーダルを閉じる

@@ -82,6 +82,26 @@ body {
     color: var(--text-light);
 }
 
+/* メッセージヘッダーとユーザー名のスタイル */
+.message-header {
+    margin-bottom: 4px;
+}
+
+.username {
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-right: 5px;
+}
+
+.chat-message.sent .username {
+    color: var(--text-light);
+}
+
+.message-content {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
 /* 各メッセージの基本スタイル */
 .chat-message {
     padding: 12px 18px;

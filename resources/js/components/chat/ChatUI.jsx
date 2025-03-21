@@ -36,7 +36,15 @@ const ChatUI = ({
                             <em>{msg.text}</em>
                         ) : (
                             <>
-                                {msg.text}
+                                <div className="message-header">
+                                    <span className="username">
+                                        {/* 送信者名はmsg.senderから取得（存在しない場合のフォールバックも設定） */}
+                                        {msg.sender || (msg.type === "sent" 
+                                            ? (session?.user?.name || "you") 
+                                            : "Partner")}:
+                                    </span>
+                                </div>
+                                <div className="message-content">{msg.text}</div>
                                 <div className="timestamp">
                                     {formatTimestamp()}
                                 </div>
